@@ -10,12 +10,11 @@ from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, MapCompose
 
 
-class CompanysInfoItem(scrapy.Item):
-    pass
+
 
 
 class BusinessInfoItemLoader(ItemLoader):
-    default_output_processor = TakeFirst
+    default_output_processor = TakeFirst()
 
 
 def filter_monery(value):
@@ -29,6 +28,9 @@ def filter_monery(value):
 
     return int1
 
+def return_value(value):
+    return value
+
 
 class BusinessInfoItem(scrapy.Item):
     '''工商信息'''
@@ -38,7 +40,9 @@ class BusinessInfoItem(scrapy.Item):
         input_processor=MapCompose(filter_monery),
     )  # 注册资本
     registration_time = scrapy.Field()  # 注册时间
-    company_status = scrapy.Field()  # 公司状态
+    company_status = scrapy.Field(
+
+    )  # 公司状态
     equity_structure = scrapy.Field()  # 股权结构
     registration_number = scrapy.Field()  # 工商注册号
     credit_code = scrapy.Field()  # 统一信用代码
@@ -52,3 +56,7 @@ class BusinessInfoItem(scrapy.Item):
     english_name = scrapy.Field()  # 英文名称
     registered_address = scrapy.Field()  # 注册地址
     business_scope = scrapy.Field()  # 经营范围
+
+
+class CompanysInfoItem(scrapy.Item):
+    detail_url = scrapy.Field()
