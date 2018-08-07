@@ -3,9 +3,8 @@ import urllib
 
 import scrapy
 
-from items import BusinessInfoItem, BusinessInfoItemLoader, CompanysInfoItem
-from settings import DEFAULT_REQUEST_HEADERS, headers2
-from utils.log_utils import logger
+from companys_info.items import BusinessInfoItem, BusinessInfoItemLoader
+from companys_info.settings import DEFAULT_REQUEST_HEADERS, headers2
 
 
 class CompanysSpider(scrapy.Spider):
