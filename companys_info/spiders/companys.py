@@ -3,7 +3,7 @@ import urllib
 
 import scrapy
 
-from companys_info.items import BusinessInfoItem, BusinessInfoItemLoader
+from companys_info.items import BusinessInfoItem, InfoItemLoader
 from companys_info.settings import DEFAULT_REQUEST_HEADERS, headers2
 
 
@@ -56,7 +56,7 @@ class CompanysSpider(scrapy.Spider):
 
     def parse_detail(self, response):
         # businessinfo_item = BusinessInfoItem()
-        item_local = BusinessInfoItemLoader(item=BusinessInfoItem(), response=response)
+        item_local = InfoItemLoader(item=BusinessInfoItem(), response=response)
 
         # search_name = scrapy.Field()
         # legal_representative = scrapy.Field()  # 法定代表人

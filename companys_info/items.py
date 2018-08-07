@@ -12,8 +12,8 @@ from scrapy.loader.processors import TakeFirst, MapCompose
 
 
 
-
-class BusinessInfoItemLoader(ItemLoader):
+"""************天眼查**************** """
+class InfoItemLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
 
@@ -60,3 +60,29 @@ class BusinessInfoItem(scrapy.Item):
 
 class CompanysInfoItem(scrapy.Item):
     detail_url = scrapy.Field()
+
+
+
+"""************p2p网贷**************** """
+
+def filter_title(value):
+    '''查找title是否有某一个关键字'''
+
+    title = value.strip()
+
+    with open("negative_kws", "r") as f:
+        for kw in f:
+            print(kw)
+            if kw in title:
+                print(title)
+                return title
+
+
+
+class P2pNegativeInfo(scrapy.Item):
+    title = scrapy.Field(
+        # input_processor=MapCompose(filter_title)
+    )#标题
+    summary = scrapy.Field()#摘要
+    issuing_time = scrapy.Field()#发表时间
+    spider_time = scrapy.Field()#爬取时间

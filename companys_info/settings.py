@@ -16,7 +16,7 @@ BOT_NAME = 'companys_info'
 SPIDER_MODULES = ['companys_info.spiders']
 NEWSPIDER_MODULE = 'companys_info.spiders'
 
-LOG_LEVEL = "WARNING"
+# LOG_LEVEL = "WARNING"
 
 project_dir = os.path.abspath(os.path.dirname(__file__))
 base_dir = os.path.dirname(project_dir)

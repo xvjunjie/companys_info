@@ -11,48 +11,13 @@ from scrapy.exceptions import DropItem
 from utils.log_utils import logger
 
 
-# class CompanysInfoPipeline(object):
-#     def open_spider(self, spider):
-#         db_server = spider.settings.get("MONGODB_SERVER", "localhost")
-#         # db_port = spider.settings.get("MONGODB_PORT", "27017")
-#         db_name = spider.settings.get("MONGODB_DB", "companys_info")
-#         db_collection = spider.settings.get("MONGODB_COLLECTION", "companys")
-#
-#         self.db_client = MongoClient(db_server)
-#         self.db = self.db_client[db_name]
-#         self.db_collection = self.db[db_collection]
-#
-#     def close_spider(self, spider):
-#         self.db_client.close()
-#
-#     def process_item(self, item, spider):
-#         self.insert_db(item)
-#         return item
-#
-#     def insert_db(self, item):
-#         '''
-#             插入数据
-#         :param item:
-#         :return:
-#         '''
-#         if isinstance(item, Item):
-#             item = dict(item)
-#
-#             valid = True
-#             for data in item:
-#                 if not data:
-#                     valid = False
-#                     raise DropItem("Missing {0}!".format(data))
-#             if valid:
-#                 self.db_collection.insert(item)
-
-
 class CompanysPipeline(object):
-    collection_name = "companys_info"
+    # collection_name = "companys_info"
 
     def __init__(self, mongo_url, mongo_db):
         self.mongo_url = mongo_url
         self.mongo_db = mongo_db
+
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -74,6 +39,13 @@ class CompanysPipeline(object):
 
     def process_item(self, item, spider):
         ## how to handle each post
-        self.db[self.collection_name].insert(dict(item))
-        logger.debug("Post added to MongoDB")
+
+        if spider.name == "companys":
+            self.db["companys"].insert(dict(item))
+            logger.debug("Post added to MongoDB")
+
+        elif spider.name =="p2p_info":
+            self.db["p2p_info"].insert(dict(item))
+            logger.debug("Post added to MongoDB")
+
         return item
