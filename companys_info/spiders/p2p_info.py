@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import urllib
+
 import scrapy
 
-from items import InfoItemLoader, P2pNegativeInfo
+from items import InfoItemLoader, P2pInfo
 from settings import DEFAULT_REQUEST_HEADERS
 
 
@@ -34,21 +36,78 @@ class P2pInfoSpider(scrapy.Spider):
         # spider_time = scrapy.Field()  # 爬取时间
 
         title_li = response.xpath("//div[@class='listbox']//ul[@class='zllist']/li")
-        item_local = InfoItemLoader(item=P2pNegativeInfo(), response=response,dont_filter=True)
+        p2pInfo1 = P2pInfo()
+        p2pInfo2 = P2pInfo()
+
+        negative_item = InfoItemLoader(item=p2pInfo1, response=response, dont_filter=True)
+        positive_item = InfoItemLoader(item=p2pInfo2, response=response, dont_filter=True)
 
         for li in title_li:
             title = li.xpath(".//div[@class='text']/h3/a/text()").extract_first().strip()
 
-            with open("negative_kws", "r") as f:
-                for kw in f:
-                    print(kw + "*" + title)
-                    if title.find(kw):
-                        item_local.add_value("title", title)
-                        item_local.add_xpath("summary", ".//p[@class='cen']/a/text()")
-                        item_local.add_xpath("issuing_time", ".//div[@class='lbox']/span[2]/text()")
+            with open("negative_kws", "r") as negative_kws:
+                for negative in negative_kws:
+                    is_title = title.find(negative.strip())
+                    if is_title != -1:
+                        negative_item.add_value("kws_type", "negative")
+                        negative_item.add_value("title", title)
+                        negative_item.add_xpath("summary", ".//p[@class='cen']/a/text()")
+                        negative_item.add_xpath("issuing_time", ".//div[@class='lbox']/span[2]/text()")
 
+                        detail_url = li.xpath("./div[2]/h3/a/@href").extract_first()
+                        # negative_info = negative_item.load_item()
+
+                        yield scrapy.Request(
+                            url=urllib.parse.urljoin(response.url, detail_url),
+                            callback=self.parse_detail,
+                            meta={"negative_item": negative_item},
+                            headers=DEFAULT_REQUEST_HEADERS
+                        )
+
+            with open("positive_kws", "r") as positive_kws:
+                for positive in positive_kws:
+                    print(positive + "*" + title)
+                    is_title = title.find(positive.strip())
+                    if is_title != -1:
+                        positive_item.add_value("kws_type", "positive")
+                        positive_item.add_value("title", title)
+                        positive_item.add_xpath("summary", ".//p[@class='cen']/a/text()")
+                        positive_item.add_xpath("issuing_time", ".//div[@class='lbox']/span[2]/text()")
                         # todo
-                        # item_local.load_item("issuing_time",".//div[@class='lbox']/span[2]/text()")#爬取时间
+                        # positive_item.load_item("issuing_time",".//div[@class='lbox']/span[2]/text()")#爬取时间
+                        # positive_info = positive_item.load_item()
+                        detail_url = li.xpath("./div[2]/h3/a/@href").extract_first()
 
-        negative_Info = item_local.load_item()
-        yield negative_Info
+                        # print(detail_url)
+
+                        yield scrapy.Request(
+                            url=urllib.parse.urljoin(response.url, detail_url),
+                            callback=self.parse_detail,
+                            meta={"positive_item": positive_item},
+                            headers=DEFAULT_REQUEST_HEADERS
+                        )
+
+    def parse_detail(self, response):
+        negative_item = response.meta.get("negative_item")
+        positive_item = response.meta.get("positive_item")
+
+        a = response.xpath("/html/body/div[6]/div[2]/div[1]/div/div[2]/div[2]/div[3]")
+        info = a[0].xpath('string(.)').extract()[0]
+
+        if negative_item:
+            negative_item.add_value("content", info)
+            negative_info = negative_item.load_item()
+            yield negative_info
+
+        elif positive_item:
+            positive_item.add_value("content", info)
+            positive_info = positive_item.load_item()
+            yield positive_info
+
+
+
+
+
+
+
+

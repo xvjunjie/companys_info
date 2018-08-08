@@ -79,10 +79,12 @@ def filter_title(value):
 
 
 
-class P2pNegativeInfo(scrapy.Item):
+class P2pInfo(scrapy.Item):
+    kws_type = scrapy.Field()#关键词类型，0负面，1正面
     title = scrapy.Field(
         # input_processor=MapCompose(filter_title)
     )#标题
     summary = scrapy.Field()#摘要
     issuing_time = scrapy.Field()#发表时间
     spider_time = scrapy.Field()#爬取时间
+    content = scrapy.Field()#详情的内容

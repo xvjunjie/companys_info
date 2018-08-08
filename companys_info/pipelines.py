@@ -18,7 +18,6 @@ class CompanysPipeline(object):
         self.mongo_url = mongo_url
         self.mongo_db = mongo_db
 
-
     @classmethod
     def from_crawler(cls, crawler):
         ## pull in information from settings.py
@@ -44,8 +43,11 @@ class CompanysPipeline(object):
             self.db["companys"].insert(dict(item))
             logger.debug("Post added to MongoDB")
 
-        elif spider.name =="p2p_info":
-            self.db["p2p_info"].insert(dict(item))
-            logger.debug("Post added to MongoDB")
-
+        elif spider.name == "p2p_info":
+            if item["kws_type"] == "positive":
+                self.db["positive_info"].insert(dict(item))
+                logger.debug("positive_info added to MongoDB")
+            elif item["kws_type"] == "negative":
+                self.db["negative_info"].insert(dict(item))
+                logger.debug("negative_info added to MongoDB")
         return item
