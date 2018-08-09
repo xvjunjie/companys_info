@@ -5,14 +5,16 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 import re
+
+# import datetime
 import scrapy
+import time
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, MapCompose
 
-
-
-
 """************天眼查**************** """
+
+
 class InfoItemLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
@@ -27,6 +29,7 @@ def filter_monery(value):
         print(int1)
 
     return int1
+
 
 def return_value(value):
     return value
@@ -62,8 +65,8 @@ class CompanysInfoItem(scrapy.Item):
     detail_url = scrapy.Field()
 
 
-
 """************p2p网贷**************** """
+
 
 def filter_title(value):
     '''查找title是否有某一个关键字'''
@@ -78,13 +81,25 @@ def filter_title(value):
                 return title
 
 
+def date_convert(value):
+    try:
+        create_date = time.strftime('%Y-%m-%d %H:%M', value)
+    except Exception as e:
+        create_date = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
+
+    return create_date
+
 
 class P2pInfo(scrapy.Item):
-    kws_type = scrapy.Field()#关键词类型，0负面，1正面
+    kws_type = scrapy.Field()  # 关键词类型，0负面，1正面
     title = scrapy.Field(
         # input_processor=MapCompose(filter_title)
-    )#标题
-    summary = scrapy.Field()#摘要
-    issuing_time = scrapy.Field()#发表时间
-    spider_time = scrapy.Field()#爬取时间
-    content = scrapy.Field()#详情的内容
+    )  # 标题
+    summary = scrapy.Field()  # 摘要
+    issuing_time = scrapy.Field(
+        input_processor=MapCompose(date_convert)
+    )  # 发表时间
+    spider_time = scrapy.Field(
+        # input_processor=MapCompose(date_convert)
+    )  # 爬取时间
+    content = scrapy.Field()  # 详情的内容
