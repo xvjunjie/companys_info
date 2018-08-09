@@ -55,7 +55,6 @@ class P2pInfoSpider(scrapy.Spider):
                         negative_item.add_xpath("issuing_time", ".//div[@class='lbox']/span[2]/text()")
 
                         detail_url = li.xpath("./div[2]/h3/a/@href").extract_first()
-                        # negative_info = negative_item.load_item()
 
                         yield scrapy.Request(
                             url=urllib.parse.urljoin(response.url, detail_url),
@@ -66,7 +65,6 @@ class P2pInfoSpider(scrapy.Spider):
 
             with open("positive_kws", "r") as positive_kws:
                 for positive in positive_kws:
-                    print(positive + "*" + title)
                     is_title = title.find(positive.strip())
                     if is_title != -1:
                         positive_item.add_value("kws_type", "positive")
@@ -75,10 +73,8 @@ class P2pInfoSpider(scrapy.Spider):
                         positive_item.add_xpath("issuing_time", ".//div[@class='lbox']/span[2]/text()")
                         # todo
                         # positive_item.load_item("issuing_time",".//div[@class='lbox']/span[2]/text()")#爬取时间
-                        # positive_info = positive_item.load_item()
                         detail_url = li.xpath("./div[2]/h3/a/@href").extract_first()
 
-                        # print(detail_url)
 
                         yield scrapy.Request(
                             url=urllib.parse.urljoin(response.url, detail_url),
@@ -102,7 +98,11 @@ class P2pInfoSpider(scrapy.Spider):
         elif positive_item:
             positive_item.add_value("content", info)
             positive_info = positive_item.load_item()
+
             yield positive_info
+
+
+
 
 
 

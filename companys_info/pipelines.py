@@ -39,15 +39,42 @@ class CompanysPipeline(object):
     def process_item(self, item, spider):
         ## how to handle each post
 
-        if spider.name == "companys":
-            self.db["companys"].insert(dict(item))
-            logger.debug("Post added to MongoDB")
+        valid = True
+        for data in item:
+            if not data:
+                valid = False
+                raise DropItem('Missing %s ' % (data))
 
-        elif spider.name == "p2p_info":
-            if item["kws_type"] == "positive":
-                self.db["positive_info"].insert(dict(item))
-                logger.debug("positive_info added to MongoDB")
-            elif item["kws_type"] == "negative":
-                self.db["negative_info"].insert(dict(item))
-                logger.debug("negative_info added to MongoDB")
+        if valid:
+
+            if spider.name == "companys":
+                self.db["companys"].insert(dict(item))
+                logger.debug("Post added to MongoDB")
+
+            elif spider.name == "p2p_info":
+                # self.save_p2p_datas(item)
+                if item != None and item["kws_type"] == "positive":
+
+                    result = self.db["positive_info"].find({"title": item["title"]})  # 去重
+
+                    if result.count() != 0:
+                        raise DropItem("Duplicate item found: %s" % item)
+                    else:
+
+                        self.db["positive_info"].insert(dict(item))
+                        logger.debug("positive_info added to MongoDB")
+
+                elif item != None and item["kws_type"] == "negative":
+
+                    title = item["title"]
+                    result = self.db["negative_info"].find({"title": title})
+                    # print(result)
+                    if result.count() != 0:
+                        raise DropItem("Duplicate item found: %s" % item)
+                    else:
+                        self.db["negative_info"].insert(dict(item))
+                        logger.debug("negative_info added to MongoDB")
         return item
+
+    def save_p2p_datas(self, item):
+        pass
