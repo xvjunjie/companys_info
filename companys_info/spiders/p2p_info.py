@@ -2,11 +2,10 @@
 import urllib
 
 import scrapy
-import time
 
 from items import InfoItemLoader, P2pInfo
 from settings import DEFAULT_REQUEST_HEADERS
-
+from datetime import datetime
 
 
 class P2pInfoSpider(scrapy.Spider):
@@ -43,6 +42,7 @@ class P2pInfoSpider(scrapy.Spider):
 
         negative_item = InfoItemLoader(item=p2pInfo1, response=response, dont_filter=True)
         positive_item = InfoItemLoader(item=p2pInfo2, response=response, dont_filter=True)
+        date = datetime.now()
 
         for li in title_li:
             title = li.xpath(".//div[@class='text']/h3/a/text()").extract_first().strip()
@@ -56,7 +56,7 @@ class P2pInfoSpider(scrapy.Spider):
                         negative_item.add_xpath("summary", ".//p[@class='cen']/a/text()")
                         negative_item.add_xpath("issuing_time", ".//div[@class='lbox']/span[2]/text()")
 
-                        date = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
+
                         negative_item.add_value("spider_time", date)  # 爬取时间
 
                         detail_url = li.xpath("./div[2]/h3/a/@href").extract_first()
@@ -77,7 +77,7 @@ class P2pInfoSpider(scrapy.Spider):
                         positive_item.add_xpath("summary", ".//p[@class='cen']/a/text()")
                         positive_item.add_xpath("issuing_time", ".//div[@class='lbox']/span[2]/text()")
                         # todo
-                        date = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
+
                         positive_item.add_value("spider_time", date)  # 爬取时间
                         detail_url = li.xpath("./div[2]/h3/a/@href").extract_first()
 
